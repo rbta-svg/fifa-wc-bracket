@@ -91,14 +91,11 @@ export default function BracketView({ matches }) {
   const columnHeight = r32Count * CARD_HEIGHT;
 
   return (
-    // Break out of the centered max-w container so the bracket can use most
-    // of the browser width (with a comfortable side margin), falling back to
-    // horizontal scroll only on screens too narrow to fit every round.
-    <div
-      className="relative left-1/2 right-1/2 mb-8 overflow-x-auto"
-      style={{ marginLeft: "calc(-50vw + 50%)", marginRight: "calc(-50vw + 50%)", width: "100vw" }}
-    >
-      <div className="flex gap-3 mx-auto px-12" style={{ maxWidth: 1500 }}>
+    // Fills the width of its parent (the page's own max-w container handles
+    // the side margins), falling back to horizontal scroll only on screens
+    // too narrow to fit every round at its minimum readable width.
+    <div className="w-full overflow-x-auto mb-8">
+      <div className="flex gap-3 w-full">
         {ROUND_ORDER.filter((r) => byRound[r]).map((round) => (
           <div key={round} className="flex-1 min-w-[150px] flex flex-col">
             <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 text-center truncate">
