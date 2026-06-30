@@ -24,6 +24,7 @@ const DEFAULT_PREDICTIONS = {
     88: { s1: 0, s2: 1 }, // Australia 0-1 Egypt
   },
   azi: {
+    73: { s1: 1, s2: 0 }, // Canada 1-0 South Africa
     74: { s1: 4, s2: 1 }, // Germany 4-1 Paraguay
     75: { s1: 1, s2: 1, penWinner: "team2" }, // Netherlands 1-1 Morocco, Morocco on pens
     76: { s1: 3, s2: 1 }, // Brazil 3-1 Japan
@@ -42,7 +43,7 @@ const DEFAULT_PREDICTIONS = {
   },
 };
 
-function loadState() {
+function loadSavedState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
@@ -50,18 +51,31 @@ function loadState() {
   return null;
 }
 
+// Merges code-provided defaults underneath whatever's already saved, so
+// newly seeded predictions/results show up for returning users without
+// clobbering any edits they've already made through the UI.
 function buildInitialState() {
-  const results = {};
-  const pens = {};
+  const defaultResults = {};
+  const defaultPens = {};
   for (const m of MATCHES) {
-    if (m.result) results[m.id] = m.result;
-    if (m.pen) pens[m.id] = m.pen;
+    if (m.result) defaultResults[m.id] = m.result;
+    if (m.pen) defaultPens[m.id] = m.pen;
   }
-  return { predictions: DEFAULT_PREDICTIONS, results, pens };
+
+  const saved = loadSavedState();
+
+  return {
+    predictions: {
+      robert: { ...DEFAULT_PREDICTIONS.robert, ...(saved?.predictions?.robert ?? {}) },
+      azi: { ...DEFAULT_PREDICTIONS.azi, ...(saved?.predictions?.azi ?? {}) },
+    },
+    results: { ...defaultResults, ...(saved?.results ?? {}) },
+    pens: { ...defaultPens, ...(saved?.pens ?? {}) },
+  };
 }
 
 export function useStore() {
-  const [state, setState] = useState(() => loadState() || buildInitialState());
+  const [state, setState] = useState(() => buildInitialState());
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));

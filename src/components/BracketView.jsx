@@ -24,7 +24,7 @@ function TeamRow({ name, score, isWinner, isDone }) {
         {name}
       </span>
       {score !== undefined && (
-        <span className={`text-xs font-mono ml-1 ${isDone && isWinner ? "text-yellow-400" : "text-slate-300"}`}>
+        <span className={`text-xs font-mono ml-1 shrink-0 ${isDone && isWinner ? "text-yellow-400" : "text-slate-300"}`}>
           {score}
         </span>
       )}
@@ -50,13 +50,13 @@ function MatchCard({ match }) {
   return (
     <div
       style={{ height: CARD_HEIGHT - 12 }}
-      className="w-[210px] bg-slate-800 border border-slate-700 rounded-lg shadow-sm flex flex-col justify-center overflow-hidden shrink-0"
+      className="w-full bg-slate-800 border border-slate-700 rounded-lg shadow-sm flex flex-col justify-center overflow-hidden"
     >
-      <div className="flex items-center justify-between px-2 pt-1">
-        <span className="text-[10px] text-slate-500">
+      <div className="flex items-center justify-between px-2 pt-1 gap-1">
+        <span className="text-[10px] text-slate-500 truncate">
           {done ? (match.pen ? "FT · Pens" : "FT") : formatKickoff(match.kickoff)}
         </span>
-        <span className="text-[10px] text-slate-600">M{match.id}</span>
+        <span className="text-[10px] text-slate-600 shrink-0">M{match.id}</span>
       </div>
       <TeamRow
         name={match.team1}
@@ -88,17 +88,17 @@ export default function BracketView({ matches }) {
   const columnHeight = r32Count * CARD_HEIGHT;
 
   return (
-    <div className="overflow-x-auto pb-4 mb-8 -mx-4 px-4">
-      <div className="flex gap-6 min-w-max">
+    // Break out of the centered max-w container so the bracket can use the
+    // full browser width; falls back to horizontal scroll only on screens
+    // too narrow to fit every round at its minimum readable width.
+    <div className="relative left-1/2 right-1/2 -mx-[50vw] w-screen px-4 mb-8 overflow-x-auto">
+      <div className="flex gap-3 mx-auto" style={{ maxWidth: 1600 }}>
         {ROUND_ORDER.filter((r) => byRound[r]).map((round) => (
-          <div key={round} className="flex flex-col">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 text-center">
+          <div key={round} className="flex-1 min-w-[150px] flex flex-col">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 text-center truncate">
               {ROUND_TITLES[round]}
             </h3>
-            <div
-              style={{ height: columnHeight }}
-              className="flex flex-col justify-around"
-            >
+            <div style={{ height: columnHeight }} className="flex flex-col justify-around">
               {byRound[round].map((match) => (
                 <MatchCard key={match.id} match={match} />
               ))}
