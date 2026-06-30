@@ -1,5 +1,6 @@
 import { calcPoints, isLocked } from "../utils/scoring";
 import { isPlaceholderTeam } from "../utils/bracket";
+import { getFlag } from "../data/flags";
 import ScoreInput from "./ScoreInput";
 
 const ROME_TZ = "Europe/Rome";
@@ -69,9 +70,15 @@ export default function MatchRow({ match, predictions, onPrediction, onResult, o
       {/* Center: teams + predictions + result */}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className={`font-semibold ${isTBD ? "text-slate-500 italic text-sm" : "text-white"}`}>{match.team1}</span>
+          <span className={`font-semibold ${isTBD ? "text-slate-500 italic text-sm" : "text-white"}`}>
+            {!isTBD && <span className="mr-1">{getFlag(match.team1)}</span>}
+            {match.team1}
+          </span>
           <span className="text-slate-500">vs</span>
-          <span className={`font-semibold ${isTBD ? "text-slate-500 italic text-sm" : "text-white"}`}>{match.team2}</span>
+          <span className={`font-semibold ${isTBD ? "text-slate-500 italic text-sm" : "text-white"}`}>
+            {!isTBD && <span className="mr-1">{getFlag(match.team2)}</span>}
+            {match.team2}
+          </span>
           {result && (
             <span className="ml-2 font-mono font-bold text-green-300 text-sm">
               {result.s1} – {result.s2}

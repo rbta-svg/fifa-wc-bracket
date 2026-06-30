@@ -1,0 +1,38 @@
+export const TEAM_FLAGS = {
+  Canada: "🇨🇦",
+  "South Africa": "🇿🇦",
+  Germany: "🇩🇪",
+  Paraguay: "🇵🇾",
+  Netherlands: "🇳🇱",
+  Morocco: "🇲🇦",
+  Brazil: "🇧🇷",
+  Japan: "🇯🇵",
+  France: "🇫🇷",
+  Sweden: "🇸🇪",
+  "Ivory Coast": "🇨🇮",
+  Norway: "🇳🇴",
+  Mexico: "🇲🇽",
+  Ecuador: "🇪🇨",
+  England: "🇬🇧",
+  "DR Congo": "🇨🇩",
+  Belgium: "🇧🇪",
+  Senegal: "🇸🇳",
+  USA: "🇺🇸",
+  "Bosnia-Herzegovina": "🇧🇦",
+  Spain: "🇪🇸",
+  Austria: "🇦🇹",
+  Portugal: "🇵🇹",
+  Croatia: "🇭🇷",
+  Switzerland: "🇨🇭",
+  Algeria: "🇩🇿",
+  Argentina: "🇦🇷",
+  "Cape Verde": "🇨🇻",
+  Colombia: "🇨🇴",
+  Ghana: "🇬🇭",
+  Australia: "🇦🇺",
+  Egypt: "🇪🇬",
+};
+
+export function getFlag(teamName) {
+  return TEAM_FLAGS[teamName] ?? "";
+}

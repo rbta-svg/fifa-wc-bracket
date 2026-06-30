@@ -1,4 +1,5 @@
 import { isPlaceholderTeam } from "../utils/bracket";
+import { getFlag } from "../data/flags";
 
 const ROME_TZ = "Europe/Rome";
 const ROUND_ORDER = ["R32", "R16", "QF", "SF", "FINAL"];
@@ -18,9 +19,11 @@ function formatKickoff(iso) {
 
 function TeamRow({ name, score, isWinner, isDone }) {
   const placeholder = isPlaceholderTeam(name);
+  const flag = placeholder ? "" : getFlag(name);
   return (
-    <div className={`flex items-center justify-between px-2 py-1 ${isDone && isWinner ? "font-bold" : ""}`}>
+    <div className={`flex items-center justify-between px-2 py-1 gap-1 ${isDone && isWinner ? "font-bold" : ""}`}>
       <span className={`text-xs truncate ${placeholder ? "text-slate-500 italic" : "text-slate-100"}`}>
+        {flag && <span className="mr-1">{flag}</span>}
         {name}
       </span>
       {score !== undefined && (
@@ -88,11 +91,14 @@ export default function BracketView({ matches }) {
   const columnHeight = r32Count * CARD_HEIGHT;
 
   return (
-    // Break out of the centered max-w container so the bracket can use the
-    // full browser width; falls back to horizontal scroll only on screens
-    // too narrow to fit every round at its minimum readable width.
-    <div className="relative left-1/2 right-1/2 -mx-[50vw] w-screen px-4 mb-8 overflow-x-auto">
-      <div className="flex gap-3 mx-auto" style={{ maxWidth: 1600 }}>
+    // Break out of the centered max-w container so the bracket can use most
+    // of the browser width (with a comfortable side margin), falling back to
+    // horizontal scroll only on screens too narrow to fit every round.
+    <div
+      className="relative left-1/2 right-1/2 mb-8 overflow-x-auto"
+      style={{ marginLeft: "calc(-50vw + 50%)", marginRight: "calc(-50vw + 50%)", width: "100vw" }}
+    >
+      <div className="flex gap-3 mx-auto px-12" style={{ maxWidth: 1500 }}>
         {ROUND_ORDER.filter((r) => byRound[r]).map((round) => (
           <div key={round} className="flex-1 min-w-[150px] flex flex-col">
             <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2 text-center truncate">
