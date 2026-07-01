@@ -57,8 +57,14 @@ export default function MatchRow({ match, predictions, onPrediction, onResult, o
     upcoming: "bg-blue-400",
   }[status];
 
+  const needsUpdate = status === "live";
+
   return (
-    <div className={`grid grid-cols-[auto_1fr_auto] gap-3 items-start py-3 px-3 rounded-xl ${status === "done" ? "bg-slate-800/40" : "bg-slate-800/70"} mb-2`}>
+    <div
+      className={`grid grid-cols-[auto_1fr_auto] gap-3 items-start py-3 px-3 rounded-xl mb-2 ${
+        status === "done" ? "bg-slate-800/40" : "bg-slate-800/70"
+      } ${needsUpdate ? "border border-amber-500/60" : ""}`}
+    >
       {/* Left: kickoff */}
       <div className="text-right min-w-[90px]">
         <div className="flex items-center gap-1.5 justify-end">
@@ -142,7 +148,10 @@ export default function MatchRow({ match, predictions, onPrediction, onResult, o
           </div>
         )}
 
-        {locked && !result && !isTBD && <p className="text-xs text-amber-500">🔒 Predictions locked</p>}
+        {needsUpdate && !isTBD && (
+          <p className="text-xs text-amber-400 font-semibold">⚠️ Kickoff has passed — needs a result</p>
+        )}
+        {locked && !needsUpdate && !result && !isTBD && <p className="text-xs text-amber-500">🔒 Predictions locked</p>}
       </div>
 
       <div className="text-xs text-slate-500 text-right hidden sm:block max-w-[160px]">{match.venue}</div>

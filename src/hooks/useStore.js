@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { doc, onSnapshot, getDoc, setDoc, updateDoc, deleteField } from "firebase/firestore";
+import { db } from "../firebase";
 import { MATCHES } from "../data/matches";
 
-const STORAGE_KEY = "fwc26_bracket_v2";
+const docRef = doc(db, "bracket", "shared");
 
 // Seeded predictions provided by the players for the Round of 32.
 const DEFAULT_PREDICTIONS = {
@@ -43,71 +45,64 @@ const DEFAULT_PREDICTIONS = {
   },
 };
 
-function loadSavedState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch {}
-  return null;
-}
-
-// Merges code-provided defaults underneath whatever's already saved, so
-// newly seeded predictions/results show up for returning users without
-// clobbering any edits they've already made through the UI.
-function buildInitialState() {
-  const defaultResults = {};
-  const defaultPens = {};
+function buildDefaultState() {
+  const results = {};
+  const pens = {};
   for (const m of MATCHES) {
-    if (m.result) defaultResults[m.id] = m.result;
-    if (m.pen) defaultPens[m.id] = m.pen;
+    if (m.result) results[m.id] = m.result;
+    if (m.pen) pens[m.id] = m.pen;
   }
-
-  const saved = loadSavedState();
-
-  return {
-    predictions: {
-      robert: { ...DEFAULT_PREDICTIONS.robert, ...(saved?.predictions?.robert ?? {}) },
-      azi: { ...DEFAULT_PREDICTIONS.azi, ...(saved?.predictions?.azi ?? {}) },
-    },
-    results: { ...defaultResults, ...(saved?.results ?? {}) },
-    pens: { ...defaultPens, ...(saved?.pens ?? {}) },
-  };
+  return { predictions: DEFAULT_PREDICTIONS, results, pens };
 }
 
+// Shared state lives in a single Firestore document so Robert and Azi see
+// each other's predictions/results in real time, regardless of device.
 export function useStore() {
-  const [state, setState] = useState(() => buildInitialState());
+  const [state, setState] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [state]);
+    let unsubscribe;
+    (async () => {
+      const snap = await getDoc(docRef);
+      if (!snap.exists()) {
+        await setDoc(docRef, buildDefaultState());
+      }
+      unsubscribe = onSnapshot(docRef, (s) => {
+        if (s.exists()) {
+          setState(s.data());
+          setLoading(false);
+        }
+      });
+    })();
+    return () => unsubscribe && unsubscribe();
+  }, []);
 
   function setPrediction(player, matchId, score) {
-    setState((s) => ({
-      ...s,
-      predictions: {
-        ...s.predictions,
-        [player]: { ...s.predictions[player], [matchId]: score },
-      },
-    }));
+    updateDoc(docRef, { [`predictions.${player}.${matchId}`]: score });
   }
 
   function setResult(matchId, score) {
-    setState((s) => ({ ...s, results: { ...s.results, [matchId]: score } }));
+    updateDoc(docRef, { [`results.${matchId}`]: score });
   }
 
   function clearResult(matchId) {
-    setState((s) => {
-      const r = { ...s.results };
-      const p = { ...s.pens };
-      delete r[matchId];
-      delete p[matchId];
-      return { ...s, results: r, pens: p };
+    updateDoc(docRef, {
+      [`results.${matchId}`]: deleteField(),
+      [`pens.${matchId}`]: deleteField(),
     });
   }
 
   function setPen(matchId, score) {
-    setState((s) => ({ ...s, pens: { ...s.pens, [matchId]: score } }));
+    updateDoc(docRef, { [`pens.${matchId}`]: score });
   }
 
-  return { state, setPrediction, setResult, clearResult, setPen };
+  return {
+    state: state ?? buildDefaultState(),
+    loading,
+    setPrediction,
+    setResult,
+    clearResult,
+    setPen,
+  };
 }

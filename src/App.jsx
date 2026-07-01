@@ -9,7 +9,7 @@ import "./index.css";
 const ADMIN_PIN = "1234";
 
 export default function App() {
-  const { state, setPrediction, setResult, clearResult, setPen } = useStore();
+  const { state, loading, setPrediction, setResult, clearResult, setPen } = useStore();
   const [adminMode, setAdminMode] = useState(false);
   const [pinInput, setPinInput] = useState("");
   const [showPinDialog, setShowPinDialog] = useState(false);
@@ -50,16 +50,19 @@ export default function App() {
               <p className="text-xs text-slate-400">Knockout Bracket Challenge</p>
             </div>
           </div>
-          <button
-            onClick={handleAdminToggle}
-            className={`text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors ${
-              adminMode
-                ? "bg-orange-500/20 text-orange-400 border border-orange-500/40"
-                : "bg-slate-700 text-slate-400 hover:text-white"
-            }`}
-          >
-            {adminMode ? "⚙ Admin ON" : "Admin"}
-          </button>
+          <div className="flex items-center gap-3">
+            {loading && <span className="text-xs text-slate-500">Syncing…</span>}
+            <button
+              onClick={handleAdminToggle}
+              className={`text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors ${
+                adminMode
+                  ? "bg-orange-500/20 text-orange-400 border border-orange-500/40"
+                  : "bg-slate-700 text-slate-400 hover:text-white"
+              }`}
+            >
+              {adminMode ? "⚙ Admin ON" : "Admin"}
+            </button>
+          </div>
         </div>
       </header>
 

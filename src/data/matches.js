@@ -21,20 +21,20 @@ export const MATCHES = [
   { id: 86, round: "R32", kickoff: "2026-07-03T22:00:00Z", team1: "Argentina",   team2: "Cape Verde",    venue: "Hard Rock Stadium, Miami Gardens",      result: null },
   { id: 87, round: "R32", kickoff: "2026-07-04T01:30:00Z", team1: "Colombia",    team2: "Ghana",         venue: "Arrowhead Stadium, Kansas City",         result: null },
 
-  // ── ROUND OF 16 ── (team1/2 resolved from R32 winners)
-  { id: 89, round: "R16", kickoff: "2026-07-04T17:00:00Z", team1: null, team2: null, feeders: [73, 74], venue: "NRG Stadium, Houston",                  result: null },
-  { id: 90, round: "R16", kickoff: "2026-07-04T21:00:00Z", team1: null, team2: null, feeders: [75, 76], venue: "Lincoln Financial Field, Philadelphia",  result: null },
-  { id: 91, round: "R16", kickoff: "2026-07-05T20:00:00Z", team1: null, team2: null, feeders: [77, 78], venue: "MetLife Stadium, East Rutherford",      result: null },
-  { id: 92, round: "R16", kickoff: "2026-07-06T00:00:00Z", team1: null, team2: null, feeders: [79, 80], venue: "Estadio Azteca, Mexico City",           result: null },
-  { id: 93, round: "R16", kickoff: "2026-07-06T19:00:00Z", team1: null, team2: null, feeders: [81, 82], venue: "AT&T Stadium, Arlington",               result: null },
-  { id: 94, round: "R16", kickoff: "2026-07-07T00:00:00Z", team1: null, team2: null, feeders: [83, 84], venue: "Lumen Field, Seattle",                  result: null },
-  { id: 95, round: "R16", kickoff: "2026-07-07T16:00:00Z", team1: null, team2: null, feeders: [85, 86], venue: "Mercedes-Benz Stadium, Atlanta",        result: null },
-  { id: 96, round: "R16", kickoff: "2026-07-07T20:00:00Z", team1: null, team2: null, feeders: [87, 88], venue: "BC Place, Vancouver",                   result: null },
+  // ── ROUND OF 16 ── (team1/2 resolved from R32 winners; pairings verified against official bracket)
+  { id: 89, round: "R16", kickoff: "2026-07-04T17:00:00Z", team1: null, team2: null, feeders: [73, 75], venue: "NRG Stadium, Houston",                  result: null }, // Canada vs Morocco
+  { id: 90, round: "R16", kickoff: "2026-07-04T21:00:00Z", team1: null, team2: null, feeders: [74, 77], venue: "Lincoln Financial Field, Philadelphia",  result: null }, // Paraguay vs France
+  { id: 91, round: "R16", kickoff: "2026-07-05T20:00:00Z", team1: null, team2: null, feeders: [76, 78], venue: "MetLife Stadium, East Rutherford",      result: null }, // Brazil vs Norway
+  { id: 92, round: "R16", kickoff: "2026-07-06T00:00:00Z", team1: null, team2: null, feeders: [79, 80], venue: "Estadio Azteca, Mexico City",           result: null }, // Mexico vs England/DR Congo
+  { id: 93, round: "R16", kickoff: "2026-07-06T19:00:00Z", team1: null, team2: null, feeders: [83, 84], venue: "AT&T Stadium, Arlington",               result: null }, // Portugal/Croatia vs Spain/Austria
+  { id: 94, round: "R16", kickoff: "2026-07-07T00:00:00Z", team1: null, team2: null, feeders: [81, 82], venue: "Lumen Field, Seattle",                  result: null }, // USA/Bosnia vs Belgium/Senegal
+  { id: 95, round: "R16", kickoff: "2026-07-07T16:00:00Z", team1: null, team2: null, feeders: [86, 88], venue: "Mercedes-Benz Stadium, Atlanta",        result: null }, // Argentina/Cape Verde vs Australia/Egypt
+  { id: 96, round: "R16", kickoff: "2026-07-07T20:00:00Z", team1: null, team2: null, feeders: [85, 87], venue: "BC Place, Vancouver",                   result: null }, // Switzerland/Algeria vs Colombia/Ghana
 
   // ── QUARTERFINALS ──
   { id: 97,  round: "QF", kickoff: "2026-07-09T20:00:00Z", team1: null, team2: null, feeders: [89, 90], venue: "Gillette Stadium, Foxborough", result: null },
-  { id: 98,  round: "QF", kickoff: "2026-07-10T19:00:00Z", team1: null, team2: null, feeders: [91, 92], venue: "SoFi Stadium, Inglewood",     result: null },
-  { id: 99,  round: "QF", kickoff: "2026-07-11T21:00:00Z", team1: null, team2: null, feeders: [93, 94], venue: "Hard Rock Stadium, Miami Gardens", result: null },
+  { id: 98,  round: "QF", kickoff: "2026-07-10T19:00:00Z", team1: null, team2: null, feeders: [93, 94], venue: "SoFi Stadium, Inglewood",     result: null },
+  { id: 99,  round: "QF", kickoff: "2026-07-11T21:00:00Z", team1: null, team2: null, feeders: [91, 92], venue: "Hard Rock Stadium, Miami Gardens", result: null },
   { id: 100, round: "QF", kickoff: "2026-07-12T01:00:00Z", team1: null, team2: null, feeders: [95, 96], venue: "Arrowhead Stadium, Kansas City", result: null },
 
   // ── SEMIFINALS ──

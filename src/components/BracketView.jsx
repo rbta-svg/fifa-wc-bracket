@@ -37,6 +37,8 @@ function TeamRow({ name, score, isWinner, isDone }) {
 
 function MatchCard({ match }) {
   const done = !!match.result;
+  const isTBD = isPlaceholderTeam(match.team1) || isPlaceholderTeam(match.team2);
+  const needsUpdate = !done && !isTBD && new Date() >= new Date(match.kickoff);
   const isPenWin = match.pen
     ? match.pen.s1 > match.pen.s2
       ? "team1"
@@ -53,11 +55,13 @@ function MatchCard({ match }) {
   return (
     <div
       style={{ height: CARD_HEIGHT - 12 }}
-      className="w-full bg-slate-800 border border-slate-700 rounded-lg shadow-sm flex flex-col justify-center overflow-hidden"
+      className={`w-full bg-slate-800 border rounded-lg shadow-sm flex flex-col justify-center overflow-hidden ${
+        needsUpdate ? "border-amber-500/70" : "border-slate-700"
+      }`}
     >
       <div className="flex items-center justify-between px-2 pt-1 gap-1">
-        <span className="text-[10px] text-slate-500 truncate">
-          {done ? (match.pen ? "FT · Pens" : "FT") : formatKickoff(match.kickoff)}
+        <span className={`text-[10px] truncate ${needsUpdate ? "text-amber-400 font-semibold" : "text-slate-500"}`}>
+          {done ? (match.pen ? "FT · Pens" : "FT") : needsUpdate ? "⚠️ Needs result" : formatKickoff(match.kickoff)}
         </span>
         <span className="text-[10px] text-slate-600 shrink-0">M{match.id}</span>
       </div>
