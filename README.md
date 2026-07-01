@@ -48,4 +48,4 @@ npm run preview
 
 ### Live deployment
 
-This app auto-deploys to GitHub Pages on every push to `main`.
+This app auto-deploys to GitHub Pages on every push to `main`: https://rbta-svg.github.io/fifa-wc-bracket/
