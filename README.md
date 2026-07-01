@@ -45,3 +45,7 @@ The output goes to the `dist/` folder. You can preview it locally with:
 ```bash
 npm run preview
 ```
+
+### Live deployment
+
+This app auto-deploys to GitHub Pages on every push to `main`.
