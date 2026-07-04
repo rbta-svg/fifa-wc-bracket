@@ -1,9 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function ScoreInput({ value, onChange, disabled, team1, team2 }) {
   const [s1, setS1] = useState(value?.s1 ?? "");
   const [s2, setS2] = useState(value?.s2 ?? "");
   const [penWinner, setPenWinner] = useState(value?.penWinner ?? null);
+  const focusedRef = useRef(false);
+
+  // Firestore's initial fetch is async: this component can mount before the
+  // real saved value arrives (e.g. right after page load), locking in a stale
+  // "" from the useState initializer above. Resync whenever a fresh value
+  // comes in from the backend, unless the user is actively typing right now.
+  useEffect(() => {
+    if (focusedRef.current) return;
+    setS1(value?.s1 ?? "");
+    setS2(value?.s2 ?? "");
+    setPenWinner(value?.penWinner ?? null);
+  }, [value?.s1, value?.s2, value?.penWinner]);
 
   function commit(ns1, ns2, nPenWinner) {
     const v1 = parseInt(ns1, 10);
@@ -30,6 +42,11 @@ export default function ScoreInput({ value, onChange, disabled, team1, team2 }) 
     );
   }
 
+  const focusHandlers = {
+    onFocus: () => { focusedRef.current = true; },
+    onBlur: () => { focusedRef.current = false; },
+  };
+
   return (
     <div className="flex items-center gap-1.5 flex-wrap">
       <input
@@ -38,6 +55,7 @@ export default function ScoreInput({ value, onChange, disabled, team1, team2 }) 
         max={20}
         value={s1}
         onChange={(e) => { setS1(e.target.value); commit(e.target.value, s2, penWinner); }}
+        {...focusHandlers}
         className="w-10 text-center bg-slate-700 border border-slate-600 rounded text-white text-sm py-0.5 focus:outline-none focus:border-blue-400"
       />
       <span className="text-slate-400">–</span>
@@ -47,6 +65,7 @@ export default function ScoreInput({ value, onChange, disabled, team1, team2 }) 
         max={20}
         value={s2}
         onChange={(e) => { setS2(e.target.value); commit(s1, e.target.value, penWinner); }}
+        {...focusHandlers}
         className="w-10 text-center bg-slate-700 border border-slate-600 rounded text-white text-sm py-0.5 focus:outline-none focus:border-blue-400"
       />
       {isDraw && (

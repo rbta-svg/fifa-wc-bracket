@@ -81,15 +81,19 @@ export default function App() {
         <BracketView matches={resolvedMatches} />
 
         <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-2 px-1">Predictions</h2>
-        <MatchList
-          matches={resolvedMatches}
-          predictions={state.predictions}
-          onPrediction={setPrediction}
-          onResult={setResult}
-          onPen={setPen}
-          clearResult={clearResult}
-          adminMode={adminMode}
-        />
+        {loading ? (
+          <p className="text-sm text-slate-500 px-1">Loading predictions…</p>
+        ) : (
+          <MatchList
+            matches={resolvedMatches}
+            predictions={state.predictions}
+            onPrediction={setPrediction}
+            onResult={setResult}
+            onPen={setPen}
+            clearResult={clearResult}
+            adminMode={adminMode}
+          />
+        )}
       </main>
 
       {showPinDialog && (
