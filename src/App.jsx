@@ -9,7 +9,7 @@ import "./index.css";
 const ADMIN_PIN = "1234";
 
 export default function App() {
-  const { state, loading, setPrediction, setResult, clearResult, setPen } = useStore();
+  const { state, loading, setPrediction, setResult, clearResult, setPen, setDouble } = useStore();
   const [adminMode, setAdminMode] = useState(false);
   const [pinInput, setPinInput] = useState("");
   const [showPinDialog, setShowPinDialog] = useState(false);
@@ -73,9 +73,11 @@ export default function App() {
           <span><span className="text-blue-400 font-bold">3 pts</span> — Right winner</span>
           <span><span className="text-slate-500 font-bold">0 pts</span> — Wrong winner</span>
           <span className="text-amber-500">Draws advance on penalties — pick a shootout winner too.</span>
+          <span className="text-purple-400">🎯 Guess the exact penalty score for +10 bonus points.</span>
+          <span className="text-fuchsia-400">2× — one match per round (from Round of 16 on) doubles your points.</span>
         </div>
 
-        <ScoreCard predictions={state.predictions} matches={resolvedMatches} />
+        <ScoreCard predictions={state.predictions} matches={resolvedMatches} doubles={state.doubles} />
 
         <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-2 px-1">Bracket</h2>
         <BracketView matches={resolvedMatches} />
@@ -92,6 +94,8 @@ export default function App() {
             onPen={setPen}
             clearResult={clearResult}
             adminMode={adminMode}
+            doubles={state.doubles}
+            onSetDouble={setDouble}
           />
         )}
       </main>

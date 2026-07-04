@@ -1,8 +1,17 @@
 import { calcTotalPoints } from "../utils/scoring";
 
-export default function ScoreCard({ predictions, matches }) {
-  const robertPts = calcTotalPoints(predictions.robert, matches);
-  const aziPts = calcTotalPoints(predictions.azi, matches);
+function doubledIdsFor(doubles, player) {
+  const ids = new Set();
+  const perRound = doubles?.[player] ?? {};
+  for (const matchId of Object.values(perRound)) {
+    if (matchId != null) ids.add(matchId);
+  }
+  return ids;
+}
+
+export default function ScoreCard({ predictions, matches, doubles }) {
+  const robertPts = calcTotalPoints(predictions.robert, matches, doubledIdsFor(doubles, "robert"));
+  const aziPts = calcTotalPoints(predictions.azi, matches, doubledIdsFor(doubles, "azi"));
 
   const leader = robertPts > aziPts ? "Robert" : aziPts > robertPts ? "Azi" : null;
 

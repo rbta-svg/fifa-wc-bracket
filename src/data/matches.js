@@ -58,3 +58,9 @@ export const ROUND_LABELS = {
 };
 
 export const ROUND_ORDER = ["R32", "R16", "QF", "SF", "3P", "FINAL"];
+
+// Rounds where each player may pick one match per round to double their
+// points from it. Round of 32 is excluded (too many matches to be special),
+// and the third-place playoff is excluded (a consolation match, not part of
+// the main bracket progression).
+export const DOUBLE_ELIGIBLE_ROUNDS = ["R16", "QF", "SF", "FINAL"];

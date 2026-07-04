@@ -1,6 +1,7 @@
 import { calcPoints, isLocked } from "../utils/scoring";
 import { isPlaceholderTeam } from "../utils/bracket";
 import { getFlag } from "../data/flags";
+import { DOUBLE_ELIGIBLE_ROUNDS } from "../data/matches";
 import ScoreInput from "./ScoreInput";
 
 const ROME_TZ = "Europe/Rome";
@@ -25,31 +26,92 @@ function matchStatus(kickoffISO, result) {
   return "upcoming";
 }
 
-function PointsBadge({ pts }) {
-  if (pts === null || pts === undefined) return null;
-  const colors = {
-    5: "bg-yellow-500 text-black",
-    4: "bg-green-500 text-white",
-    3: "bg-blue-500 text-white",
-    0: "bg-slate-600 text-slate-300",
-  };
+const BASE_COLORS = {
+  5: "bg-yellow-500 text-black",
+  4: "bg-green-500 text-white",
+  3: "bg-blue-500 text-white",
+  2: "bg-cyan-600 text-white",
+  1: "bg-orange-700 text-white",
+  0: "bg-slate-600 text-slate-300",
+};
+
+function PointsBadge({ pts, doubled }) {
+  if (!pts) return null;
+  const { base, bonus, total } = pts;
+  const displayed = doubled ? total * 2 : total;
   return (
-    <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${colors[pts] ?? "bg-slate-600 text-slate-300"}`}>
-      {pts}pt{pts !== 1 ? "s" : ""}
+    <span className="inline-flex items-center gap-1">
+      <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${BASE_COLORS[base] ?? "bg-slate-600 text-slate-300"}`}>
+        {displayed}pt{displayed !== 1 ? "s" : ""}
+      </span>
+      {bonus > 0 && (
+        <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-purple-500 text-white" title="Exact penalty score bonus">
+          🎯+{doubled ? bonus * 2 : bonus}
+        </span>
+      )}
+      {doubled && (
+        <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-fuchsia-500 text-white">×2</span>
+      )}
     </span>
   );
 }
 
-export default function MatchRow({ match, predictions, onPrediction, onResult, onPen, clearResult, adminMode }) {
+function DoubleToggle({ player, match, doubles, doubleLocked, onSetDouble, color }) {
+  const currentPick = doubles?.[player]?.[match.round] ?? null;
+  const isDoubledHere = currentPick === match.id;
+  const roundLocked = doubleLocked?.[player]?.[match.round] ?? false;
+  const thisLocked = isLocked(match.kickoff);
+  const canToggle = !thisLocked && !roundLocked;
+
+  return (
+    <button
+      type="button"
+      disabled={!canToggle}
+      onClick={() => onSetDouble(player, match.round, isDoubledHere ? null : match.id)}
+      title={
+        isDoubledHere
+          ? "This is your 2x pick for the round — click to remove"
+          : canToggle
+          ? "Double your points for this match (one pick per round)"
+          : "Not available — round's double pick is already locked in"
+      }
+      className={`text-[10px] px-1.5 py-0.5 rounded font-bold transition-colors ${
+        isDoubledHere
+          ? "bg-fuchsia-500 text-white"
+          : canToggle
+          ? `bg-slate-700 ${color} hover:text-white`
+          : "bg-slate-800 text-slate-600 cursor-not-allowed"
+      }`}
+    >
+      2×
+    </button>
+  );
+}
+
+export default function MatchRow({
+  match,
+  predictions,
+  onPrediction,
+  onResult,
+  onPen,
+  clearResult,
+  adminMode,
+  doubles,
+  doubleLocked,
+  onSetDouble,
+}) {
   const locked = isLocked(match.kickoff);
   const status = matchStatus(match.kickoff, match.result);
   const isTBD = isPlaceholderTeam(match.team1) || isPlaceholderTeam(match.team2);
   const result = match.result;
+  const eligibleForDouble = DOUBLE_ELIGIBLE_ROUNDS.includes(match.round);
 
   const robertPred = predictions.robert[match.id];
   const aziPred = predictions.azi[match.id];
   const robertPts = calcPoints(robertPred, match);
   const aziPts = calcPoints(aziPred, match);
+  const robertDoubled = doubles?.robert?.[match.round] === match.id;
+  const aziDoubled = doubles?.azi?.[match.round] === match.id;
 
   const statusDot = {
     done: "bg-slate-500",
@@ -108,7 +170,17 @@ export default function MatchRow({ match, predictions, onPrediction, onResult, o
                 team2={match.team2}
                 onChange={(v) => onPrediction("robert", match.id, v)}
               />
-              {result && <PointsBadge pts={robertPts} />}
+              {result && <PointsBadge pts={robertPts} doubled={robertDoubled} />}
+              {eligibleForDouble && (
+                <DoubleToggle
+                  player="robert"
+                  match={match}
+                  doubles={doubles}
+                  doubleLocked={doubleLocked}
+                  onSetDouble={onSetDouble}
+                  color="text-blue-400"
+                />
+              )}
             </div>
             <div className="flex items-center gap-1.5">
               <span className="text-xs text-green-400 font-semibold w-6">Azi</span>
@@ -119,7 +191,17 @@ export default function MatchRow({ match, predictions, onPrediction, onResult, o
                 team2={match.team2}
                 onChange={(v) => onPrediction("azi", match.id, v)}
               />
-              {result && <PointsBadge pts={aziPts} />}
+              {result && <PointsBadge pts={aziPts} doubled={aziDoubled} />}
+              {eligibleForDouble && (
+                <DoubleToggle
+                  player="azi"
+                  match={match}
+                  doubles={doubles}
+                  doubleLocked={doubleLocked}
+                  onSetDouble={onSetDouble}
+                  color="text-green-400"
+                />
+              )}
             </div>
           </div>
         )}
@@ -130,13 +212,21 @@ export default function MatchRow({ match, predictions, onPrediction, onResult, o
             <ScoreInput
               value={result}
               disabled={false}
+              resultMode
               team1={match.team1}
               team2={match.team2}
               onChange={(v) => {
                 onResult(match.id, { s1: v.s1, s2: v.s2 });
-                if (v.s1 === v.s2 && v.penWinner) {
-                  // store implied pen score as 1-0 in the chosen direction for resolution purposes
-                  onPen(match.id, v.penWinner === "team1" ? { s1: 1, s2: 0 } : { s1: 0, s2: 1 });
+                if (v.s1 === v.s2) {
+                  if (v.penScore) {
+                    // Admin entered the real, exact shootout score.
+                    onPen(match.id, v.penScore);
+                  } else if (v.penWinner) {
+                    // Fallback: only a winner side given, store a placeholder
+                    // score just to record who advances (no exact-score bonus
+                    // can be computed against this).
+                    onPen(match.id, v.penWinner === "team1" ? { s1: 1, s2: 0 } : { s1: 0, s2: 1 });
+                  }
                 }
               }}
             />

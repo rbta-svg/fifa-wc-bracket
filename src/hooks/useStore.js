@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { doc, onSnapshot, getDoc, setDoc, updateDoc, deleteField } from "firebase/firestore";
 import { db } from "../firebase";
-import { MATCHES } from "../data/matches";
+import { MATCHES, DOUBLE_ELIGIBLE_ROUNDS } from "../data/matches";
 
 const docRef = doc(db, "bracket", "shared");
 
@@ -45,6 +45,12 @@ const DEFAULT_PREDICTIONS = {
   },
 };
 
+function buildDefaultDoubles() {
+  const perRound = {};
+  for (const round of DOUBLE_ELIGIBLE_ROUNDS) perRound[round] = null;
+  return { robert: { ...perRound }, azi: { ...perRound } };
+}
+
 function buildDefaultState() {
   const results = {};
   const pens = {};
@@ -52,7 +58,7 @@ function buildDefaultState() {
     if (m.result) results[m.id] = m.result;
     if (m.pen) pens[m.id] = m.pen;
   }
-  return { predictions: DEFAULT_PREDICTIONS, results, pens };
+  return { predictions: DEFAULT_PREDICTIONS, results, pens, doubles: buildDefaultDoubles() };
 }
 
 // Shared state lives in a single Firestore document so Robert and Azi see
@@ -67,6 +73,9 @@ export function useStore() {
       const snap = await getDoc(docRef);
       if (!snap.exists()) {
         await setDoc(docRef, buildDefaultState());
+      } else if (!snap.data().doubles) {
+        // Older saved documents predate the "doubles" feature; patch it in.
+        await updateDoc(docRef, { doubles: buildDefaultDoubles() });
       }
       unsubscribe = onSnapshot(docRef, (s) => {
         if (s.exists()) {
@@ -97,6 +106,11 @@ export function useStore() {
     updateDoc(docRef, { [`pens.${matchId}`]: score });
   }
 
+  // matchId = null clears the player's double for that round.
+  function setDouble(player, round, matchId) {
+    updateDoc(docRef, { [`doubles.${player}.${round}`]: matchId });
+  }
+
   return {
     state: state ?? buildDefaultState(),
     loading,
@@ -104,5 +118,6 @@ export function useStore() {
     setResult,
     clearResult,
     setPen,
+    setDouble,
   };
 }
